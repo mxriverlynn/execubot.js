@@ -35,10 +35,10 @@ function executeCode(webTaskAccountId, webTaskToken, code){
       reject(e);
     });
 
-    const wrappedCode = `return function(ctx, cb) { 
-      const result = (function(){
-       ${code}
-      })();
+    const wrappedCode = `
+    'use latest';
+    return function(ctx, cb) { 
+      const result = (function(){ ${code} })();
       cb(null, result); 
     }`;
 
