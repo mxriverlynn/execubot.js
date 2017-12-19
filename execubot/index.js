@@ -5,6 +5,7 @@ import { fromExpress } from 'webtask-tools';
 import bodyParser from 'body-parser';
 import https from 'https';
 
+import getGist from '../lib/getGist';
 import postSlackMessage from '../lib/postSlackMessage';
 
 var secrets;
@@ -43,7 +44,10 @@ function linkShared(req, res){
   const { url } = event.links[0];
 
   console.log(event);
-  postExecuteButton(url)
+  getGist(url)
+    .then((code) => {
+      postCode(code, url)
+    })
     .then(() => {
       res.status(200).send();
     })
@@ -54,22 +58,28 @@ function linkShared(req, res){
     });
 }
 
-function postExecuteButton(codeUrl){
+function postCode(code, codeUrl){
   const message = {
     channel: secrets.slackChannel,
-    text: 'nice link!',
-    attachments: [{
-      text: "Want to execute that code?",
-      callback_id: "exec",
-      style: "primary",
-      attachment_type: "default",
-      actions: [{
-        name: "exec",
-        text: "Run it >>",
-        type: "button",
-        value: codeUrl
-      }]
-    }]
+    text: "Here's that wonder gist code you posted!",
+    attachments: [
+      {
+        title: "The Code:",
+        text: code
+      },
+      {
+        title: "Want to run it?",
+        callback_id: "exec",
+        style: "primary",
+        attachment_type: "default",
+        actions: [{
+          name: "exec",
+          text: "Run The Code >>",
+          type: "button",
+          value: codeUrl
+        }]
+      }
+    ]
   };
 
   return postSlackMessage(secrets.slackToken, message);

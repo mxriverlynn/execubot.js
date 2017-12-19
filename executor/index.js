@@ -5,8 +5,8 @@ import { fromExpress } from 'webtask-tools';
 import bodyParser from 'body-parser';
 import https from 'https';
 
-import getGist from './getGist';
 import executeCode from './executeCode';
+import getGist from '../lib/getGist';
 import postSlackMessage from '../lib/postSlackMessage';
 
 var secrets;
