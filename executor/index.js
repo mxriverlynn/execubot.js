@@ -6,6 +6,7 @@ import bodyParser from 'body-parser';
 import https from 'https';
 
 import getGist from './getGist';
+import executeCode from './executeCode';
 import postSlackMessage from '../lib/postSlackMessage';
 
 var secrets;
@@ -22,7 +23,7 @@ app.post('/', (req, res) => {
 
   getGist(codeUrl)
     .then(executeCode)
-    .then(postCode)
+    .then(postCodeAndResult)
     .then(() => {
       return res.status(200).send();
     })
@@ -33,13 +34,7 @@ app.post('/', (req, res) => {
     });
 });
 
-function executeCode(code) {
-  return new Promise((resolve, reject) => {
-    resolve(code, "these results are great!");
-  });
-}
-
-function postCode(code, result){
+function postCodeAndResult({code, result}){
   const message = {
     channel: secrets.slackChannel,
     text: "here's the code and result",
