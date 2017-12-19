@@ -5,6 +5,10 @@ read JavaScript code from a github gist file that was linked
 in a Slack channel, ask you if you want to execute it, and then
 post the results into the slack channel when the code has completed.
 
+## A Demo
+
+![](/assets/execubot-demo.gif)
+
 ## Getting Started
 
 ## Deploy The Bots
