@@ -17,12 +17,12 @@ app.use(bodyParser.json({extended: true}));
 
 app.post('/', (req, res) => {
   const payload = JSON.parse(req.body.payload);
-
   const codeUrl = payload.actions[0].value;
-  const responseUrl = payload.response_url;
 
   getGist(codeUrl)
-    .then(executeCode)
+    .then((code) => {
+      return executeCode(secrets.webTaskAccountId, secrets.webTaskToken, code);
+    })
     .then(postCodeAndResult)
     .then(() => {
       return res.status(200).send();
@@ -34,18 +34,18 @@ app.post('/', (req, res) => {
     });
 });
 
-function postCodeAndResult({code, result}){
+function postCodeAndResult({code, output}){
   const message = {
     channel: secrets.slackChannel,
     text: "here's the code and result",
     attachments: [
       {
-        title: "code:",
+        title: "The Code:",
         text: code
       },
       {
-        title: "result:",
-        text: result
+        title: "The Output:",
+        text: output
       }
     ]
   };
