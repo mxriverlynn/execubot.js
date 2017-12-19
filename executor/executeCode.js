@@ -26,7 +26,7 @@ function executeCode(webTaskAccountId, webTaskToken, code){
         console.log("Execute Code Results:");
         console.log(output);
 
-        resolve({code, output});
+        resolve(output);
       });
     });
 
@@ -38,7 +38,48 @@ function executeCode(webTaskAccountId, webTaskToken, code){
     const wrappedCode = `
     'use latest';
     return function(ctx, cb) { 
-      const result = (function(){ ${code} })();
+
+      const oc = {
+        log: console.log.bind(console),
+        info: console.info.bind(console),
+        warn: console.warn.bind(console),
+        error: console.error.bind(console)
+      };
+
+      const consoleData = {
+        log: [],
+        warn: [],
+        info: [],
+        error: []
+      };
+
+      console.log = function(...args) { 
+        consoleData.log = [].concat(consoleData.log).concat(args);
+        oc.log("CONSOLE LOG DATA:", consoleData.log);
+      }
+
+      console.warn = function(...args) { 
+        consoleData.warn = [].concat(consoleData.warn).concat(args);
+        oc.log("CONSOLE WARN DATA:", consoleData.warn);
+      }
+
+      console.info = function(...args) { 
+        consoleData.info = [].concat(consoleData.info).concat(args);
+        oc.log("CONSOLE INFO DATA:", consoleData.info);
+      }
+
+      console.error = function(...args) { 
+        consoleData.error = [].concat(consoleData.error).concat(args);
+        oc.log("CONSOLE ERROR DATA:", consoleData.error);
+      }
+
+      const output = (function(){ ${code} })();
+
+      const result = {
+        output,
+        consoleData
+      };
+
       cb(null, result); 
     }`;
 

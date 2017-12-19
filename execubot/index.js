@@ -59,12 +59,12 @@ function linkShared(req, res){
 }
 
 function postCode(code, codeUrl){
+
   const message = {
     channel: secrets.slackChannel,
-    text: "Here's that wonder gist code you posted!",
     attachments: [
       {
-        title: "The Code:",
+        title: "Code From The Gist:",
         text: code
       },
       {

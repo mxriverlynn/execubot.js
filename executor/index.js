@@ -23,7 +23,10 @@ app.post('/', (req, res) => {
     .then((code) => {
       return executeCode(secrets.webTaskAccountId, secrets.webTaskToken, code);
     })
-    .then(postCodeAndResult)
+    .then((jsonResult) => {
+      const result = JSON.parse(jsonResult);
+      postCodeAndResult(result);
+    })
     .then(() => {
       return res.status(200).send();
     })
@@ -34,20 +37,47 @@ app.post('/', (req, res) => {
     });
 });
 
-function postCodeAndResult({code, output}){
+function postCodeAndResult(result){
+  const attachments = [
+    {
+      title: "Direct Code Output:",
+      text: result.output
+    }
+  ];
+
+  const consoleData = result.consoleData;
+
+  if (consoleData.log.length > 0) {
+    attachments.push({
+      title: "Console Log Output:",
+      text: result.consoleData.log.join("\n")
+    });
+  }
+
+  if (consoleData.info.length > 0) {
+    attachments.push({
+      title: "Console Info Output:",
+      text: result.consoleData.info.join("\n")
+    });
+  }
+
+  if (consoleData.warn.length > 0) {
+    attachments.push({
+      title: "Console Warn Output:",
+      text: result.consoleData.warn.join("\n")
+    });
+  }
+
+  if (consoleData.error.length > 0) {
+    attachments.push({
+      title: "Console Error Output:",
+      text: result.consoleData.error.join("\n")
+    });
+  }
+
   const message = {
     channel: secrets.slackChannel,
-    text: "here's the code and result",
-    attachments: [
-      {
-        title: "The Code:",
-        text: code
-      },
-      {
-        title: "The Output:",
-        text: output
-      }
-    ]
+    attachments
   };
 
   return postSlackMessage(secrets.slackToken, message);
